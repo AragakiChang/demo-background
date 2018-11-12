@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <canvas id="cas"></canvas>
+</body>
+    <script>
+        let canvas  = document.getElementById('cas')
+        let ctx = canvas.getContext('2d')
+        ctx.fillStyle = 'purple'
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
+        let origin = {
+            x: canvas.width/2,
+            y: canvas.height/2
+        }
+
+        function init () {
+            let arr = []
+            for (let i = 0; i < 300; i++) {
+                let x = Math.random() * canvas.width - (canvas.width/2) + origin.x
+                let y = Math.random() * canvas.height - (canvas.height/2) + origin.y
+                let xa = ((x - origin.x) / origin.x) * 6
+                let ya = ((y - origin.y) / origin.y) * 6
+                let r = Math.abs((x - origin.x) / origin.x * 4)
+                arr.push({
+                    x: x,
+                    y: y,
+                    xa: xa,
+                    ya: ya,
+                    r: r
+                })
+            }
+            return arr
+        }
+
+        let dots = init()
+
+        function animate () {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            ctx.fillStyle = 'black'
+            ctx.fillRect(0, 0, canvas.width, canvas.height)
+            ctx.fillStyle = 'white'
+            dots.forEach((dot) => {
+                dot.x = ((dot.x + dot.xa) > (canvas.width + 1.5) || (dot.x + dot.xa) < -1.5) ? (Math.random() * 40 -20 + origin.x) : (dot.x + dot.xa)
+                // dot.x = dot.x + dot.xa
+                dot.y = dot.y + dot.ya > canvas.height || dot.y + dot.ya < 0 ? (Math.random() * 40 - 20 + origin.y) : dot.y + dot.ya
+                dot.xa = ((dot.x - origin.x) / origin.x) * 4
+                dot.ya = ((dot.y - origin.y) / origin.y) * 4
+                dot.r = Math.abs((dot.x - origin.x) / origin.x * 4)
+                
+                ctx.beginPath()
+                // console.log(`${dot.x} ${dot.ya} ${dot.r}`)
+                ctx.arc(dot.x, dot.y, dot.r/2, 0, 2 * Math.PI)
+                // ctx.arc(50, 50, 10, 0, 2*Math.PI)
+                ctx.fill()
+            })
+            requestAnimationFrame(animate)
+        }
+
+        animate()
+    </script>
+</html>

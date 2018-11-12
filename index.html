@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Page Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+    <canvas id="cas"></canvas>
+</body>
+    <script>
+        let canvas = document.getElementById('cas')
+        let ctx = canvas.getContext('2d')
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
+        ctx.fillStyle = 'purple'
+        let warea = {
+            x: null,
+            y: null,
+            max: 20000
+        }
+        let dots = init()
+
+        window.onresize = function () {
+            canvas.width = window.innerWidth
+            canvas.height = window.innerHeight
+        }
+
+        canvas.onmousemove = function (e) {
+            warea.x = e.clientX
+            warea.y = e.clientY
+        }
+
+        canvas.onmouseout = function (e) {
+            warea.x = null
+            warea.y = null
+        }
+
+        function init () {
+            let arr = []
+            for (let i = 0; i < 600; i++) {
+                arr.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    xa: Math.random() * 2 - 1,
+                    ya: Math.random() * 2 - 1,
+                    max: 6000
+                })
+            }
+            return arr
+        }
+
+        function animate () {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            let ndots = [warea].concat(dots)
+            dots.forEach((dot) => {
+                dot.xa *= dot.x + dot.xa > canvas.width || dot.x + dot.xa < 0 ? -1 : 1
+                dot.ya *= dot.y + dot.ya > canvas.height || dot.y + dot.ya < 0 ? -1 : 1
+                dot.x += dot.xa
+                dot.y += dot.ya
+
+                ctx.fillRect(dot.x, dot.y, 1, 1)
+
+                ndots.forEach((ndot) => {
+                    if (dot === ndot || ndot.x === null || ndot.y === null) return
+                    let xc = dot.x - ndot.x
+                    let yc = dot.y - ndot.y
+                    let long = xc * xc + yc * yc
+                    let radio = long / ndot.max
+
+                    if ( long < ndot.max) {
+                        if (ndot === warea && long > (ndot.max / 2)) {
+                            dot.x -= xc * 0.01
+                            dot.y -= yc * 0.01
+                        }
+                        ctx.strokeStyle = `rgba(30, 144, 255, ${1 - radio})`
+                        ctx.beginPath()
+                        ctx.moveTo(dot.x, dot.y)
+                        ctx.lineTo(ndot.x, ndot.y)
+                        ctx.stroke()
+                    }
+                    // ctx.strokeStyle = `rgba(30, 144, 255, ${})`
+                })
+                ndots.splice(ndots.indexOf(dot), 1)
+            })
+
+            requestAnimationFrame(animate)
+        }
+
+        animate()
+    </script>
+</html>
